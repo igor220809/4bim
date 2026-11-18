@@ -58,6 +58,22 @@ app.post("/cadastrar", (request, response) => {
     })
 })
 
+app.put("/editar/:id", (request, response) => {
+    const { id } = request.params
+    const { titulo, artista, genero, ano, duracao } = request.body
+
+    const comandoUpdate = "UPDATE musicas_igorreis SET titulo = ?, artista = ?, genero = ?, ano = ?, duracao = ? WHERE id = ?"
+
+    sql.query(comandoUpdate, [titulo, artista, genero, ano, duracao, id], (error) => {
+        if (error) {
+            console.log(error)
+            return
+        }
+
+        response.json({ mensagem: "Música alterada com sucesso!" })
+    })
+})
+
 
  app.listen(3000, () => {
     console.log("Servidor rodando na porta 3000!");
