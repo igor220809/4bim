@@ -1,6 +1,6 @@
 import express from "express"
-import mysql2 from "mysql2"
 import cors from "cors"
+import mysql2 from "mysql2"
 import "dotenv/config"
 
 const app = express()
@@ -15,39 +15,65 @@ const sql = mysql2.createPool({
     database: process.env.NOME_BANCO
 })
 
-app.get("/", (request, response) => {
+app.get("/", (request, response) => { 
     const comandoSelect = "SELECT * FROM musicas_igorreis"
-
-    sql.query(comandoSelect, (error, data) => {
-        if (error) {
-            console.log(error)
-            return response.status(500).json({ mensagem: "Erro ao buscar músicas!" })
+    sql.query(comandoSelect, (error, data) => { 
+        if (error){
+            console.log('error');
+            return
         }
-
         response.json(data)
     })
 })
 
 app.post("/cadastrar", (request, response) => {
-
     const { titulo, artista, genero, ano, duracao } = request.body
 
-    const comandoInsert = "INSERT INTO musicas_igorreis (titulo, artista, genero, ano, duracao) VALUES (?, ?, ?, ?, ?)"
+    const comandoInsert = "INSERT INTO musicas_igorreis(titulo, artista, genero, ano, duracao) VALUES (?, ?, ?, ?, ?)"
 
     sql.query(comandoInsert, [titulo, artista, genero, ano, duracao], (error) => {
 
-        if (error) {
+        if(error) {
             console.log(error)
-            return response.status(500).json({ mensagem: "Erro ao cadastrar música!" })
+            return response.status(500).json({ mensagem: "Erro ao cadastrar música!"})
         }
 
-        response.status(201).json({ mensagem: "Música cadastrada com sucesso!" })
+        response.status(201).json({ mensagem: "Música cadastrada com sucesso!"})
+        
+    })
+ })
 
+ app.delete("/apagar/:id", (request, response) => {
+    const { id } = request.params
+
+    const comandoDelete = "DELETE FROM musicas_igorreis WHERE id = ?"
+    
+    sql.query(comandoDelete, [id], (error) => {
+        if (error) {
+            console.log(error)
+            return
+        }
+
+        response.json({ mensagem: "Música apagada com sucesso!" })
     })
 })
 
-app.listen(3000, () => {
-    console.log("Servidor rodando na porta 3000")
+
+ app.listen(3000, () => {
+    console.log("Servidor rodando na porta 3000!");
+})
+
+app.get("/musica/:id", (request, response) => { 
+    const { id } = request.params
+    const comandoSelect = "SELECT * FROM musicas_igorreis WHERE id = ?"
+
+    sql.query(comandoSelect, [id], (error, data) => { 
+        if (error) {
+            console.log(error)
+            return
+        }
+        response.json(data[0])
+    })
 })
 
 export default app
